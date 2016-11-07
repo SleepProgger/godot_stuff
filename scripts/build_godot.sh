@@ -1,11 +1,14 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 #
 # TODO:
+#	- --help
 #	- backup old files (template +  bin ?)
 #	- colors
 #	- all export templates
 #	- use arguments for more stuff
+#	- check errors
+#
 
 #
 # Pathes
@@ -13,6 +16,10 @@
 BUILD_PATH=~/.bin/GodotEngine/
 EMSDK_PATH="$BUILD_PATH/emscripten"
 TMP_PATH="/tmp/godot_build"
+# Path to move the executables to after testing them.
+# This way if something broke we still have the last good executables.
+EXPORT_PATH="$BUILD_PATH/current_build"
+
 
 #
 # Export template stuff
@@ -20,8 +27,8 @@ TMP_PATH="/tmp/godot_build"
 UPDATE_EMSDK=0
 # Move new templates to ~/.godot/templates ?
 MOVE_TEMPLATES=0
-BUILD_EXPORTER_JS=1
-BUILD_EXPORTER_JS_DEBUG=1
+BUILD_EXPORTER_JS=0
+BUILD_EXPORTER_JS_DEBUG=0
 BUILD_EXPORTER_X11_64=1
 BUILD_EXPORTER_X11_64_DEBUG=1
 BUILD_EXPORTER_X11_32=0
@@ -36,10 +43,12 @@ JS_SCONS_ARGS="vorbis=no opus=no theora=no speex=no webp=no openssl=no freetype=
 #
 # Stuff
 #
-# Can be:
-#	- git  	Download new $GIT_BRANCH and rebuild
-#	- build	Only (re)build (Usefull for modules and core changes)
-#	- ext	Only (re)build export templates ( if set to 1 on the top of this file )
+# BUILD_MODE: Can be:
+#	- git  		Download new $GIT_BRANCH and rebuild
+#	- build		Only (re)build (Usefull for modules and core changes)
+#	- templates	Only (re)build export templates ( if set to 1 on the top of this file )
+#	- run		Run editor from bin folder
+#	- export	Move executables to EXPORT_PATH. Also move export templates to ~/.godot/templates
 BUILD_MODE="git"
 GIT_BRANCH="master"
 CORES=4
@@ -154,7 +163,7 @@ build() {
 	cd "$BUILD_PATH"
 	cd build-git
 	info "Build editor"
-	# Does this need the platform ?
+	# Does this need the arch ?
 	scons -j $CORES platform=x11 tools=yes
 	build_templates
 }
@@ -204,15 +213,27 @@ fi
 if [[ $# > 0 ]]; then
 	BUILD_MODE=$1
 fi
+mkdir -p $BUILD_PATH 2>/dev/null
 case $BUILD_MODE in
-	git)
+	g*) # git
 		git_build
 	;;
-	build)
+	b*) # build
 		build
 	;;
-	ext)
+	t*) # templates
 		build_templates
+	;;
+	r*) # run
+		# TODO: TODO: use new build templates ?
+		$BUILD_PATH/build-git/bin/godot.x11.tools.* -e # yeah too lazy to check for arch
+	;;
+	e*) # export
+		# TODO: backup old templates
+		cp "${BUILD_PATH}/build-git/templates/"* ~/.godot/templates/
+		# TODO: should we clear the EXPORT_PATH dir ?
+		mkdir -p $EXPORT_PATH 2>/dev/null
+		cp "$BUILD_PATH/build-git/bin/"* "$EXPORT_PATH/"
 	;;
 	*)
 		error "Invalid build mode supplied"
