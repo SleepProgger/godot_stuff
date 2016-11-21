@@ -6,8 +6,11 @@
 #	- backup old files (template +  bin ?)
 #	- colors
 #	- all export templates
+#		- Check for android tools and exit if not available.
+#		- android arches (x86, armv6 ?)
 #	- use arguments for more stuff
 #	- check errors
+#	- add --help
 #
 
 #
@@ -16,6 +19,8 @@
 BUILD_PATH=~/.bin/GodotEngine/
 EMSDK_PATH="$BUILD_PATH/emscripten"
 TMP_PATH="/tmp/godot_build"
+ANDROID_SDK_PATH="/home/nope/Android/Sdk/"
+ANDROID_NDK_PATH="/home/nope/Android/Sdk/ndk-bundle"
 # Path to move the executables to after testing them.
 # This way if something broke we still have the last good executables.
 EXPORT_PATH="$BUILD_PATH/current_build"
@@ -31,8 +36,12 @@ BUILD_EXPORTER_JS=0
 BUILD_EXPORTER_JS_DEBUG=0
 BUILD_EXPORTER_X11_64=1
 BUILD_EXPORTER_X11_64_DEBUG=1
+# Not supported atm.
 BUILD_EXPORTER_X11_32=0
+# Not supported atm.
 BUILD_EXPORTER_X11_32_DEBUG=0
+BUILD_EXPORTER_ANDROID=0
+BUILD_EXPORTER_ANDROID_DEBUG=0
 # TODO: other platforms
 
 JS_SCONS_ARGS="vorbis=no opus=no theora=no speex=no webp=no openssl=no freetype=no webm=no musepack=no disable_3d=yes disable_advanced_gui=yes module_enet_enabled=no"
@@ -153,8 +162,30 @@ build_templates() {
 		scons -j $CORES p=x11 target=release_debug tools=no bits=64
 		cp bin/godot.x11.opt.debug.64 templates/linux_x11_64_debug
 	fi
+	if [[ $BUILD_EXPORTER_ANDROID == 1 ]]; then
+		cd "$BUILD_PATH/build-git"
+		export ANDROID_HOME="$ANDROID_SDK_PATH"
+		export ANDROID_NDK_ROOT="$ANDROID_NDK_PATH"
+		info "Building android export templates."
+		scons -j $CORES platform=android target=release
+		cd platform/android/java
+		./gradlew build
+		cd "$BUILD_PATH/build-git/"
+		cp bin/android_release.apk templates/
+	fi
+	if [[ $BUILD_EXPORTER_ANDROID == 1 ]]; then
+		cd "$BUILD_PATH/build-git"
+		export ANDROID_HOME="$ANDROID_SDK_PATH"
+		export ANDROID_NDK_ROOT="$ANDROID_NDK_PATH"
+		info "Building android export templates debug."
+		scons -j $CORES platform=android target=release_debug
+		cd platform/android/java
+		./gradlew build
+		cd "$BUILD_PATH/build-git/"
+		cp bin/android_debug.apk templates/
+	fi
+
 	# TODO: 32 bit
-	# TODO: android (cross platform stuff ?)
 	# TODO: move to ~/.godot/templates if flag is set. Also handle backup
 }
 
