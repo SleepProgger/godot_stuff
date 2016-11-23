@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=1]
+
+[ext_resource path="res://Bullet_kinematic.gd" type="Script" id=1]
+[ext_resource path="res://Bullet.png" type="Texture" id=2]
+
+[sub_resource type="RectangleShape2D" id=1]
+
+custom_solver_bias = 0.0
+extents = Vector2( 5.01819, 15.0586 )
+
+[node name="KinematicBody2D" type="KinematicBody2D"]
+
+input/pickable = false
+shapes/0/shape = SubResource( 1 )
+shapes/0/transform = Matrix32( 1, 0, 0, 1, 0, 0 )
+shapes/0/trigger = true
+collision/layers = 1
+collision/mask = 2
+collision/margin = 0.08
+script/script = ExtResource( 1 )
+velocity = Vector2( 0, 0 )
+
+[node name="Sprite" type="Sprite" parent="."]
+
+texture = ExtResource( 2 )
+modulate = Color( 0.299927, 0.84375, 0.372153, 1 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+
+shape = SubResource( 1 )
+trigger = true
+_update_shape_index = 0
+
+
