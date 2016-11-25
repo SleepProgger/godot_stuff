@@ -9,10 +9,6 @@ func _ready():
 	position = get_pos()
 	set_fixed_process(true)
 	
-func set_pos_(pos):
-	position = pos
-	set_pos(pos)
-	
 
 func set_linear_velocity(vector):
 	velocity = vector
@@ -20,7 +16,8 @@ func set_linear_velocity(vector):
 func _fixed_process(delta):
 	# Should we use move here ?
 	# We don't need the collision check here tho
-	position += velocity * delta
-	set_pos(position)
+	translate(velocity * delta)
+	#position += velocity * delta
+	#set_pos(position)
 	#move(velocity * delta)
 	

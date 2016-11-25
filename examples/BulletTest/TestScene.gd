@@ -18,12 +18,14 @@ onready var _spawners = [
 	["Rigid bullet", _viewport.SPAWNER_RIGID],
 	["Area bullet", _viewport.SPAWNER_AREA],
 	["Kinematic bullet", _viewport.SPAWNER_KINEMATIC],
-	["Bullet manager", _viewport.SPAWNER_MANAGER],
+	["Bullet manager", _viewport.SPAWNER_MANAGER]
 ]
 
 func _ready():
 	# init stat stuff	
 	_stats_view.add_stats("Bullets:", _viewport, "_bullet_count", "%s", 0)
+	if type_exists("BulletManager"):
+		_spawners.append(["Bullet manager c++", _viewport.SPAWNER_MANAGER_NATIVE])
 	
 	# Init gui stuff
 	var option_box = get_node("PanelContainer/VBoxContainer/OptionButton")

@@ -9,13 +9,10 @@ func _ready():
 	position = get_pos()
 	set_fixed_process(true)
 	
-func set_pos_(pos):
-	position = pos
-	set_pos(pos)
-	
 func set_linear_velocity(vector):
 	velocity = vector
 	
 func _fixed_process(delta):
-	position += delta * velocity
-	set_pos(position)
+	#position += delta * velocity
+	translate(delta * velocity)
+	#set_pos(position)

@@ -3,8 +3,8 @@
 [ext_resource path="res://TestScene.gd" type="Script" id=1]
 [ext_resource path="res://TestSceneViewport.gd" type="Script" id=2]
 [ext_resource path="res://gball.png" type="Texture" id=3]
-[ext_resource path="res://Bullet_manager.tscn" type="PackedScene" id=4]
-[ext_resource path="res://icon.png" type="Texture" id=5]
+[ext_resource path="res://icon.png" type="Texture" id=4]
+[ext_resource path="res://Bullet_manager.tscn" type="PackedScene" id=5]
 [ext_resource path="res://addons/StatsOverlay/StatsOverlay.gd" type="Script" id=6]
 [ext_resource path="res://addons/StatsOverlay/icon.png" type="Texture" id=7]
 
@@ -65,12 +65,10 @@ physics/object_picking = false
 gui/disable_input = false
 script/script = ExtResource( 2 )
 tower_sprite = ExtResource( 3 )
-interval = 1000.0
+interval = 1e-15
 tower_count = 100
 bullet_speed = 1.0
 running = false
-
-[node name="BulletManager" parent="Container/Viewport" instance=ExtResource( 4 )]
 
 [node name="Area2D" type="Area2D" parent="Container/Viewport"]
 
@@ -86,13 +84,15 @@ angular_damp = 1.0
 
 [node name="Sprite" type="Sprite" parent="Container/Viewport/Area2D"]
 
-texture = ExtResource( 5 )
+texture = ExtResource( 4 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Container/Viewport/Area2D"]
 
 shape = SubResource( 1 )
 trigger = true
 _update_shape_index = 0
+
+[node name="BulletManager" parent="Container/Viewport" instance=ExtResource( 5 )]
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 
@@ -228,7 +228,7 @@ margin/top = 4.0
 margin/right = 100.0
 margin/bottom = 20.0
 range/min = 10.0
-range/max = 1000.0
+range/max = 5000.0
 range/step = 1.0
 range/page = 0.0
 range/value = 10.0
@@ -249,7 +249,7 @@ margin/top = 0.0
 margin/right = 178.0
 margin/bottom = 24.0
 range/min = 10.0
-range/max = 1000.0
+range/max = 5000.0
 range/step = 1.0
 range/page = 0.0
 range/value = 1000.0
@@ -299,7 +299,7 @@ margin/top = 4.0
 margin/right = 100.0
 margin/bottom = 20.0
 range/min = 1.0
-range/max = 100.0
+range/max = 250.0
 range/step = 1.0
 range/page = 0.0
 range/value = 1.0
@@ -315,15 +315,15 @@ focus/ignore_mouse = false
 focus/stop_mouse = true
 size_flags/horizontal = 2
 size_flags/vertical = 2
-margin/left = 104.0
-margin/top = 0.0
-margin/right = 178.0
-margin/bottom = 24.0
+margin/left = 105.0
+margin/top = -1.0
+margin/right = 179.0
+margin/bottom = 23.0
 range/min = 1.0
-range/max = 100.0
+range/max = 250.0
 range/step = 1.0
 range/page = 0.0
-range/value = 100.0
+range/value = 50.0
 range/exp_edit = false
 range/rounded = false
 editable = true
@@ -368,11 +368,11 @@ margin/left = 0.0
 margin/top = 4.0
 margin/right = 100.0
 margin/bottom = 20.0
-range/min = 20.0
+range/min = 50.0
 range/max = 500.0
 range/step = 1.0
 range/page = 0.0
-range/value = 20.0
+range/value = 50.0
 range/exp_edit = false
 range/rounded = false
 tick_count = 0
@@ -389,7 +389,7 @@ margin/left = 104.0
 margin/top = 0.0
 margin/right = 178.0
 margin/bottom = 24.0
-range/min = 100.0
+range/min = 50.0
 range/max = 500.0
 range/step = 1.0
 range/page = 0.0

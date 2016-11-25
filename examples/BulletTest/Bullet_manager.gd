@@ -15,7 +15,7 @@ extends Node2D
 #
 
 var bullets = []
-var _objectid2bullet = {}
+var _tmp_list = []
 var _bullet_count = 0
 
 class BulletType:
@@ -57,16 +57,18 @@ func spawn_bullet(b_type, position, velocity, rot=0):
 	bullet.texture = b_type.texture
 	bullet._half_size = b_type._half_size
 	bullet.velocity = velocity
-	bullet.body = Physics2DServer.body_create(Physics2DServer.BODY_MODE_KINEMATIC)
-	Physics2DServer.body_set_space(bullet.body, get_world_2d().get_space())
-	Physics2DServer.body_add_shape(bullet.body, b_type.shape)
-	Physics2DServer.body_attach_object_instance_ID(bullet.body, bullet.get_instance_ID())	
-	Physics2DServer.body_set_shape_as_trigger(bullet.body, 0, true) # Does this make sense performance wise ?
 	bullet.state = Matrix32().rotated( rot )
 	bullet.state.o = position
+	bullet.body = Physics2DServer.body_create(Physics2DServer.BODY_MODE_KINEMATIC)
+	Physics2DServer.body_add_shape(bullet.body, b_type.shape)
+	Physics2DServer.body_set_space(bullet.body, get_world_2d().get_space())
+	Physics2DServer.body_attach_object_instance_ID(bullet.body, bullet.get_instance_ID())
+	#Physics2DServer.body_set_shape_as_trigger(bullet.body, 0, true) # Does this make sense performance wise ?
+	Physics2DServer.body_set_max_contacts_reported(bullet.body, 0)
+	Physics2DServer.body_set_layer_mask(bullet.body, 1)
+	Physics2DServer.body_set_collision_mask(bullet.body, 2)
 	Physics2DServer.body_set_state(bullet.body, Physics2DServer.BODY_STATE_TRANSFORM, bullet.state)
 	# Save the bullet
-	_objectid2bullet[bullet.get_instance_ID()] = bullet
 	bullets.append(bullet)
 	return bullet
 	
@@ -78,7 +80,6 @@ func _draw():
 		#draw_texture(b.texture, b.state[2] - b._half_size)
 
 func _process(delta):
-	var tmp = []
 	for b in bullets:
 		if b._kill_me:
 			_bullet_count -= 1
@@ -87,22 +88,24 @@ func _process(delta):
 			continue
 		b.state[2] += b.velocity * delta
 		Physics2DServer.body_set_state(b.body, Physics2DServer.BODY_STATE_TRANSFORM, b.state)
-		tmp.append(b)
+		_tmp_list.append(b)
 	# A linked list would be awesome.
 	# Recreating lists every tick can't be performant
-	bullets = tmp
+	var tmp = bullets
+	bullets = _tmp_list
+	_tmp_list = tmp
+	_tmp_list = [] #.clear() # TODO: does it make sense to reuse lists ?
 	update()
 
 func remove_bullet(instance_id):
-	if ! instance_id in _objectid2bullet:
-		return
-	var bullet = _objectid2bullet[instance_id]
-	_objectid2bullet.erase(instance_id)
+	var bullet = instance_from_id(instance_id)
+	if bullet == null:
+		return false
 	bullet._kill_me = true
+	return true
 	
 func clean_bullets():
 	for bullet in bullets:
-		_objectid2bullet.erase(bullet.get_instance_ID())
 		bullet._kill_me = true
 
 func _ready():
